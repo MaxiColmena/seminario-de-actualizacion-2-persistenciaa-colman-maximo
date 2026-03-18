@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Carga de Alumnos - Persistencia Local</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* ============================
+           VARIABLES DE DISEÑO (NUEVAS)
+           ============================ */
+        :root {
+            --bg-body: #f0f2f5;
+            --primary: #4361ee;
+            --primary-hover: #3a56d4;
+            --secondary: #7209b7;
+            --danger: #ef233c;
+            --text-main: #2b2d42;
+            --text-light: #8d99ae;
+            --white: #ffffff;
+            --shadow: 0 10px 30px rgba(0,0,0,0.08);
+            --radius-lg: 20px;
+            --radius-sm: 10px;
+        }
+
+        /* ============================
+           ESTILOS GENERALES
+           ============================ */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-body);
+            background-image: 
+                radial-gradient(circle at top right, rgba(67, 97, 238, 0.05), transparent),
+                radial-gradient(circle at bottom left, rgba(114, 9, 183, 0.05), transparent);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 40px 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 650px;
+        }
+
+        /* ============================
+           ENCABEZADO
+           ============================ */
+        h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 30px;
+            color: var(--primary);
+            letter-spacing: -0.5px;
+        }
+
+        /* ============================
+           TARJETAS (ESTILO LIMPIO)
+           ============================ */
+        .card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 30px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(255,255,255,0.8);
+            box-shadow: var(--shadow);
+        }
+
+        /* ============================
+           FORMULARIO
+           ============================ */
+        label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 8px;
+            padding-left: 4px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #edf2f7;
+            border-radius: var(--radius-sm);
+            background: #f8fafc;
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 1rem;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: var(--white);
+            box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.1);
+        }
+
+        /* ============================
+           BOTONES
+           ============================ */
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        button {
+            flex: 1;
+            padding: 14px 24px;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-family: inherit;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(67, 97, 238, 0.2);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(67, 97, 238, 0.3);
+        }
+
+        .btn-danger {
+            background: #fff1f2;
+            color: var(--danger);
+            border: 1px solid #ffe4e6;
+        }
+
+        .btn-danger:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        /* ============================
+           TABLA DE ALUMNOS
+           ============================ */
+        h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--text-main);
+            border-left: 4px solid var(--primary);
+            padding-left: 12px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 8px;
+        }
+
+        th {
+            text-align: left;
+            padding: 12px;
+            font-size: 0.8rem;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        td {
+            padding: 14px 12px;
+            background: #fbfcfe;
+            border-top: 1px solid #f1f5f9;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        td:first-child { 
+            border-left: 1px solid #f1f5f9;
+            border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+            font-weight: 500;
+        }
+
+        td:last-child { 
+            border-right: 1px solid #f1f5f9;
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        tr:hover td {
+            background: #f1f5f9;
+        }
+
+        /* ============================
+           ESTADÍSTICAS
+           ============================ */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .stat-item {
+            background: var(--white);
+            padding: 20px 10px;
+            border-radius: var(--radius-lg);
+            text-align: center;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255,255,255,0.8);
+        }
+
+        .stat-value {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--secondary);
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-light);
+            text-transform: uppercase;
+        }
+
+        /* ============================
+           ESTADOS VACÍOS Y ANIMACIONES
+           ============================ */
+        .empty-msg {
+            text-align: center;
+            color: var(--text-light);
+            padding: 20px 0;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card, .stat-item {
+            animation: slideUp 0.4s ease-out forwards;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Gestión Académica</h2>
+
+        <div class="card">
+            <label for="nombre">Nombre Completo</label>
+            <input type="text" id="nombre" placeholder="Ej: Juan Pérez">
+
+            <label for="edad">Edad</label>
+            <input type="number" id="edad" placeholder="00">
+
+            <label for="nota">Calificación Final</label>
+            <input type="number" id="nota" placeholder="0 - 10">
+
+            <div class="btn-group">
+                <button class="btn-primary" onclick="agregarAlumno()">Registrar Alumno</button>
+                <button class="btn-danger" onclick="borrarTodo()">Limpiar Base</button>
+            </div>
+        </div>
+
+        <div id="contenedor-tabla"></div>
+        <div id="estadisticas"></div>
+    </div>
+
+    <script>
+        // EL JAVASCRIPT SE MANTIENE EXACTAMENTE IGUAL A TU LÓGICA ORIGINAL
+        let alumnos = [];
+
+        cargarDesdeServidor();
+
+        async function cargarDesdeServidor() {
+            try {
+                const respuesta = await fetch('/api/alumnos');
+                alumnos = await respuesta.json();
+                actualizarInterfaz();
+            } catch (e) { console.log("Error de conexión"); }
+        }
+
+        async function agregarAlumno() {
+            const nombre = document.getElementById('nombre').value.trim();
+            const edad   = parseInt(document.getElementById('edad').value);
+            const nota   = parseInt(document.getElementById('nota').value);
+
+            if (!nombre || isNaN(edad) || isNaN(nota)) {
+                alert('Por favor, completá todos los campos correctamente.');
+                return;
+            }
+
+            const respuesta = await fetch('/api/alumnos', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nombre, edad, nota })
+            });
+
+            alumnos = await respuesta.json();
+            limpiarFormulario();
+            actualizarInterfaz();
+        }
+
+        function actualizarInterfaz() {
+            const contenedor = document.getElementById('contenedor-tabla');
+            const statsDiv   = document.getElementById('estadisticas');
+
+            if (alumnos.length === 0) {
+                contenedor.innerHTML = '<div class="card"><p class="empty-msg">No hay alumnos registrados todavía.</p></div>';
+                statsDiv.innerHTML = '';
+                return;
+            }
+
+            const ordenados = [...alumnos].sort((a, b) => b[2] - a[2]);
+
+            contenedor.innerHTML = `
+                <div class="card">
+                    <h3>Ranking de Calificaciones</h3>
+                    <table>
+                        <thead>
+                            <tr><th>Nombre</th><th>Edad</th><th>Nota</th></tr>
+                        </thead>
+                        <tbody>
+                        ${ordenados.map(([n, e, no]) =>
+                            `<tr><td>${n}</td><td>${e} años</td><td>${no}</td></tr>`
+                        ).join('')}
+                        </tbody>
+                    </table>
+                </div>`;
+
+            const suma     = alumnos.reduce((acc, a) => acc + a[2], 0);
+            const promedio = (suma / alumnos.length).toFixed(2);
+
+            statsDiv.innerHTML = `
+                <div class="stats">
+                    <div class="stat-item">
+                        <span class="stat-value">${alumnos.length}</span>
+                        <span class="stat-label">Total</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value">${suma}</span>
+                        <span class="stat-label">Puntos</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value">${promedio}</span>
+                        <span class="stat-label">Promedio</span>
+                    </div>
+                </div>`;
+        }
+
+        function limpiarFormulario() {
+            document.getElementById('nombre').value = '';
+            document.getElementById('edad').value   = '';
+            document.getElementById('nota').value   = '';
+        }
+
+        async function borrarTodo() {
+            if (!confirm('¿Seguro que querés borrar todos los datos?')) return;
+            const respuesta = await fetch('/api/alumnos', { method: 'DELETE' });
+            alumnos = await respuesta.json();
+            actualizarInterfaz();
+        }
+    </script>
+</body>
+</html>
